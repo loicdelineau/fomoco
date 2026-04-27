@@ -1,10 +1,10 @@
 import plotly.graph_objects as go
 from calculations import future_value_annuity
 
-def create_growth_chart(years_list, lower, expected, upper, monthly, basket_name):
+def create_growth_chart(years_list, lower, expected, upper, monthly, basket_name, rate):
     fig = go.Figure()
 
-    # Risk shaded area
+    # Risk shaded area (orange)
     fig.add_trace(go.Scatter(
         x=years_list, y=upper,
         fill=None, mode='lines', line_color='rgba(0,0,0,0)',
@@ -13,26 +13,28 @@ def create_growth_chart(years_list, lower, expected, upper, monthly, basket_name
     fig.add_trace(go.Scatter(
         x=years_list, y=lower,
         fill='tonexty', mode='lines',
-        fillcolor='rgba(255,165,0,0.2)', line_color='rgba(0,0,0,0)',
+        fillcolor='rgba(255,165,0,0.25)', 
+        line_color='rgba(0,0,0,0)',
         name='Lower risk'
     ))
 
-    # Main expected growth curve
+    # === GREEN CURVE - Investment ===
     fig.add_trace(go.Scatter(
         x=years_list, y=expected,
         mode='lines+markers',
-        name=f'Expected growth ({basket_name})',
+        name=f'Investment ({rate}%)',
         line=dict(color='#00cc66', width=4),
         marker=dict(size=10)
     ))
 
-    # Red comparison dot/line for "what if you invested less/more"
-    # (here we show a lazy $50/month baseline so the red dot moves up/down when you change slider)
-    lazy_expected = future_value_annuity(50, max(years_list), 4.0)  # 4% savings account
+    # === RED CURVE - Bank account (0.25%) ===
+    bank_rate = 0.25
+    bank_values = future_value_annuity(monthly, max(years_list), bank_rate)
+    
     fig.add_trace(go.Scatter(
-        x=years_list, y=lazy_expected,
+        x=years_list, y=bank_values,
         mode='lines+markers',
-        name='If you only saved $50/mo (bank)',
+        name='Bank account (0.25%)',
         line=dict(color='#ff4444', width=3, dash='dash'),
         marker=dict(size=8, color='#ff4444')
     ))
