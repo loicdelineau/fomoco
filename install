@@ -1,0 +1,49 @@
+#!/bin/bash
+# ================================ HEADER =====================================
+# Author:       Loic Delineau
+# Date:         27/04/2026
+# Licence:     	GNU-GPLv3 
+# File:        	install
+# Platform :    Linux shell running the Bourne Again SHell (BASH)
+# Description:	Installs fomoco packages on Ubuntu 25.10
+
+# ======================= GLOBAL VARIABLES ====================================
+black=$(tput setaf 0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+
+
+# ======================= USER SYSTEM IDENTIFICATION ==========================
+# Checking if you are running Ubuntu
+if `lsb_release -a | grep -i -q ubuntu`; then
+	echo "You are running Ubuntu"
+	DISTRO=ubuntu
+else 
+	echo ""
+	echo "You didn't install Ubuntu, this script won't work"
+	echo "Killing script"
+	echo ""
+	return
+	return
+fi
+
+# =========================== SCRIPT EXECUTION ================================
+# Initial Package Update & Upgrade
+echo "Starting script, it should run for about 5 minutes" # time it!!
+
+# ========================== Closing Messages ================================= 
+echo "$green"
+echo "Script was executed successfully! $white"
+echo ""
+echo "Details of this script are documented here:"
+echo "https://github.com/loicdelineau/fomoco.git"
+echo ""
+echo "Made,"
+echo "with Love,"
+echo "by Loïc"
+echo ""
