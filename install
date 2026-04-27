@@ -32,9 +32,30 @@ else
 	return
 fi
 
+# Checking if the script is being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+	echo ""
+	echo "You didn't source the script, please restart it with:"
+	echo ". ./install"
+	echo ""
+	exit		# exit as script is not sourced
+else
+    echo "Script is being sourced"
+fi
+
+
 # =========================== SCRIPT EXECUTION ================================
 # Initial Package Update & Upgrade
 echo "Starting script, it should run for about 5 minutes" # time it!!
+
+sudo apt update 
+sudo apt install python3 python3-venv python3-pip python3-dev build-essential -y
+
+# Configuring venv
+python3 -m venv venv
+source venv/bin/activate
+pip install streamlit plotly numpy pandas
+
 
 # ========================== Closing Messages ================================= 
 echo "$green"

@@ -1,0 +1,49 @@
+#!/bin/bash
+# ================================ HEADER =====================================
+# Author:       Loic Delineau
+# Date:         27/04/2026
+# Licence:     	GNU-GPLv3 
+# File:        	run
+# Platform :    Linux shell running the Bourne Again SHell (BASH)
+# Description:	runs fomoco
+
+# ======================= GLOBAL VARIABLES ====================================
+black=$(tput setaf 0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+
+
+# =============================== Checking Venv ===============================
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "→ Not in venv. Activating ./venv..."
+    
+    if [ -d "venv" ] && [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+        echo "✅ Venv activated successfully!"
+    else
+        echo "❌ Virtual environment not found in ./venv"
+        echo "   Please run: ./install"
+        exit 1
+    fi
+fi
+
+# ====================================== Runs ================================= 
+streamlit run app.py
+exit
+
+# ========================== Closing Messages ================================= 
+echo "$green"
+echo "Script was executed successfully! $white"
+echo ""
+echo "Details of this script are documented here:"
+echo "https://github.com/loicdelineau/fomoco.git"
+echo ""
+echo "Made,"
+echo "with Love,"
+echo "by Loïc"
+echo ""
