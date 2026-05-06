@@ -2,7 +2,7 @@
 
 **See exactly what you're missing out on by not investing early.**
 
-![Fomoco Demo](fomoco_demo.gif)
+<img src="fomoco_demo.gif" width="300" alt="Fomoco Demo">
 
 A clean UBS-inspired tool that shows the powerful difference between investing monthly and leaving money in the bank.
 
