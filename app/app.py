@@ -1,115 +1,111 @@
 import streamlit as st
-from calculations import risk_band, future_value_annuity
-from visualizations import create_growth_chart
+from calculations import calculate_lost_revenue
 
-# ====================== UBS-STYLE CONFIG ======================
-st.set_page_config(
-    page_title="Fomoco • UBS",
-    page_icon="📈",
-    layout="centered",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="UBS • Fomoco", page_icon="📈", layout="centered")
 
-# UBS Brand Colors
-ubs_red = "#E20613"
-ubs_dark = "#1E1E1E"
-ubs_gray = "#F5F5F5"
+# Session State
+if "investing_mode" not in st.session_state:
+    st.session_state.investing_mode = False
 
-# Custom CSS
+investing = st.toggle("🟢 Start Investing Mode", value=st.session_state.investing_mode, key="invest_toggle")
+st.session_state.investing_mode = investing
+
+accent_color = "#00A86B" if investing else "#E20613"
+
 st.markdown(f"""
     <style>
     .stApp {{ background-color: #FFFFFF; }}
-    .main .block-container {{ padding-top: 2rem; max-width: 720px; }}
-    h1 {{ color: {ubs_red} !important; font-weight: 700; }}
-    .stSidebar {{ background-color: {ubs_gray}; }}
-    .stSidebar label, .stSidebar p {{ color: {ubs_dark} !important; font-weight: 500; }}
+    .main .block-container {{ padding-top: 1rem; max-width: 480px; margin: 0 auto; }}
+    h1 {{ color: #E20613 !important; font-size: 2.2rem; font-weight: 700; text-align: center; }}
+    p, label, .stMetricLabel {{ color: #333333 !important; }}
+    
+    .merged-box {{
+        background: #F8F9FA;
+        border-radius: 16px;
+        padding: 1.5rem 1.3rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #EEEEEE;
+        text-align: left;
+    }}
+    .account-card {{
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.6rem;
+    }}
+    .notification {{
+        background: #F0FFF0 if investing else #FFF0F0;
+        border-left: 5px solid {accent_color};
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-weight: 600;
+        color: #333333;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
-# ====================== HEADER ======================
+st.markdown("<h1>UBS</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#666; margin-bottom:1.8rem;'>Your Bank • Your Future</p>", unsafe_allow_html=True)
+
+# Sidebar
+st.sidebar.header("Your Situation")
+monthly_unused = st.sidebar.slider("Monthly unused revenue (CHF)", 500, 6000, 3000, step=100)
+months_without = st.sidebar.slider("Months without investing", 0, 120, 24, step=1)
+years_to_retirement = st.sidebar.slider("Years to retirement", 10, 40, 35, step=1)
+
+from calculations import calculate_lost_revenue
+total_lost, potential_upside = calculate_lost_revenue(monthly_unused, months_without, years_to_retirement)
+
+status_text = "✅ Investing Mode Active" if investing else "❌ Not Investing"
+revenue_text = "Invested Saving" if investing else "Unused revenue"
+
+# Compact Left-Aligned Box
 st.markdown(f"""
-    <div style="text-align: center; padding: 1rem 0 2rem 0;">
-        <h1 style="margin:0; font-size: 2.8rem; color: {ubs_red};">FOMOCO</h1>
-        <p style="color: #444; margin: 0.2rem 0 0 0; font-size: 1.15rem;">
-            See what you're missing out on
-        </p>
+    <div class="merged-box">
+        <small style="opacity:0.85;">FOMOCO — YOUR INVESTMENT ASSISTANT</small>
+        <h2 style="margin: 0.5rem 0 0.1rem 0; font-size: 2.55rem; font-weight: 700; color:#E20613;">CHF {total_lost:,.0f}</h2>
+        <p style="margin:0; color:#555;">Total lost revenue at retirement</p>
+        <p style="margin:0.1rem 0 0.8rem 0; color:#777; font-size:0.93rem;">from the last {months_without} months</p>
+        
+        <p style="margin:0.8rem 0 0.2rem 0; color:#00A86B; font-weight:600;">Expected savings if you invest today</p>
+        <strong style="font-size:1.95rem; color:#00A86B;">CHF {potential_upside:,.0f}</strong>
+        
+        <p style="margin-top:1rem; font-weight:600; color:{accent_color};">{status_text}</p>
     </div>
 """, unsafe_allow_html=True)
 
-# ====================== SIDEBAR - TWO SLIDERS ======================
-st.sidebar.markdown("### Your Investment Plan")
+# CTA
+if st.button("📈 See My Growth Plan & Start Investing", type="primary", use_container_width=True):
+    st.switch_page("pages/1_Growth_Analysis.py")
 
-monthly = st.sidebar.slider(
-    "Monthly investment (CHF)", 
-    min_value=200, 
-    max_value=2000, 
-    value=1000, 
-    step=50
-)
-
-initial = st.sidebar.slider(
-    "Initial investment (CHF)", 
-    min_value=0, 
-    max_value=100000, 
-    value=7300, 
-    step=1000,
-    format="%d"
-)
-
-basket_option = st.sidebar.selectbox(
-    "Investment basket",
-    ["Conservative (bonds)", "Balanced (60/40)", "Aggressive (stocks)"]
-)
-
-horizon = st.sidebar.slider("Time horizon (years)", 10, 40, 35, step=5)
-
-# ====================== BASKET PARAMETERS ======================
-baskets = {
-    "Conservative (bonds)": {"rate": 5.0,  "vol": 4.0},
-    "Balanced (60/40)":     {"rate": 8.0,  "vol": 9.0},
-    "Aggressive (stocks)":  {"rate": 12.0, "vol": 18.0},
-}
-
-params = baskets[basket_option]
-annual_rate = params["rate"]
-
-# ====================== CALCULATIONS ======================
-years_list = list(range(1, horizon + 1))
-lower, expected, upper = risk_band(monthly, horizon, params["rate"], params["vol"], initial)
-
-# ====================== CHART ======================
-fig = create_growth_chart(
-    years_list, lower, expected, upper,
-    monthly, basket_option, annual_rate,
-    initial  # ← new parameter
-)
-st.plotly_chart(fig, use_container_width=True)
-
-# ====================== HIGHLIGHT CARD ======================
-final_value = expected[-1]
-bank_final = future_value_annuity(monthly, horizon, 0.25, initial)[-1]
+# Accounts - Using real UBS terminology
+st.subheader("Your Accounts")
 
 st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #E20613, #B0000F); color: white; 
-                padding: 2rem; border-radius: 16px; text-align: center; 
-                box-shadow: 0 8px 20px rgba(226,6,19,0.3);">
-        <p style="margin:0; font-size: 1.1rem;">In {horizon} years you could have</p>
-        <h2 style="margin: 0.5rem 0; font-size: 3.2rem; font-weight: 700;">
-            CHF {final_value:,.0f}
-        </h2>
-        <p style="margin:0; font-size: 1.3rem;">instead of <span style="text-decoration: line-through;">CHF {bank_final:,.0f}</span></p>
-        <p style="margin-top: 1rem;">with CHF {monthly}/month + CHF {initial:,} initial in <strong>{basket_option}</strong></p>
+    <div class="account-card">
+        <h3>💳 Personal Account</h3>
+        <p style="margin:0.2rem 0 0.8rem 0;">Current Balance</p>
+        <h2 style="margin:0; color:#333;">CHF 42,800</h2>
+        <div class="notification">
+            {revenue_text}: <strong style="color:{accent_color};">CHF {monthly_unused:,}/month</strong><br>
+            <small>12-month moving average</small>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-# ====================== INFO BOX ======================
 st.markdown(f"""
-    <div style="background-color: #F8F9FA; padding: 1.5rem; border-radius: 12px; 
-                border-left: 6px solid #E20613; margin: 20px 0;">
-        <strong>Green curve</strong> — Expected investment growth<br>
-        <strong>Red dashed curve</strong> — Bank account at 0.25%<br>
-        <strong>Orange band</strong> — Realistic risk range
+    <div class="account-card">
+        <h3>🏦 Savings Account</h3>
+        <p style="margin:0.2rem 0 0.8rem 0;">Current Balance</p>
+        <h2 style="margin:0; color:#333;">CHF 40,000</h2>
+        <div class="notification">
+            {revenue_text}: <strong style="color:{accent_color};">CHF {monthly_unused:,}/month</strong><br>
+            <small>12-month moving average</small>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-st.caption("Fomoco — Making compound interest visible • May 2026")
+st.caption("Fomoco • UBS-inspired • May 2026")
