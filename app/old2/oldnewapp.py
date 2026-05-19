@@ -35,21 +35,13 @@ if not st.session_state.investing_mode:
     """, unsafe_allow_html=True)
 
 # ====================== GREEN POTENTIAL BOX (ALWAYS VISIBLE) ======================
-if st.session_state.investing_mode:
-    # Full vibrant green when investing
-    box_style = 'background: #EAF6EE; border: 2px solid #008A3D;'
-    text_color = '#008A3D'
-    label = 'Retirement savings if you continue investing CHF '
-else:
-    # Light greyed out version when toggle is OFF (as you wanted)
-    box_style = 'background: #F8F9FA; border: 1px solid #E5E5E5; opacity: 0.85;'
-    text_color = '#888888'
-    label = 'Expected savings in 35 years if you started investing CHF '
+box_style = 'background: #EAF6EE; border: 2px solid #008A3D;' if st.session_state.investing_mode else 'background: #F8F9FA; border: 1px solid #DDDDDD;'
+text_color = '#008A3D' if st.session_state.investing_mode else '#1A1A1A'
 
 st.markdown(f"""
-    <div class="merged-box" style="{box_style}; margin: 0rem 0rem -0.5rem 0rem;">
+    <div class="merged-box" style="{box_style}; margin: 0rem 0rem 1.5rem 0rem;">
         <p style="margin:-0.6rem 0 0.2rem 0; color:{text_color}; font-weight:600;">
-            {label}{monthly_unused}/month
+            Retirement savings if you {'continue' if st.session_state.investing_mode else 'start'} investing CHF {monthly_unused}/month
         </p>
         <strong style="font-size:2.55rem; font-weight:700; color:{text_color};">
             {format_chf(potential_upside)}
@@ -60,13 +52,13 @@ st.markdown(f"""
 # ====================== CTA + TOGGLE ======================
 col1, col2 = st.columns([3, 2])
 with col1:
-    st.markdown('<div style="margin-top: -10px;"> <br>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: -10px;"> <br><br>', unsafe_allow_html=True)
     if st.button("View investment plan", type="primary", use_container_width=True):
         st.switch_page("pages/1_Growth_Analysis.py")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col2:
-    st.markdown('<div style="margin-top: 5px;"> <br>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: 5px;"> <br><br>', unsafe_allow_html=True)
     investing = st.toggle("Start investing", value=st.session_state.investing_mode)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -75,17 +67,14 @@ st.session_state.investing_mode = investing
 # ====================== ACCOUNTS ======================
 st.subheader("Your accounts")
 accent_color = "#008A3D" if investing else "#E60000"
-revenue_text = "Invested savings" if investing else "Unused revenue"
-saved_text = "Invested savings" if investing else "Unused savings"
-monthly_rate = "CHF 9'500" if investing else "CHF 12'500"
-savings_rate = "CHF 16'000" if investing else "CHF 62'000"
+revenue_text = "Invested saving" if investing else "Unused revenue"
 
 st.markdown(f"""
     <div class="account-card">
         <h3>Private Account</h3>
         <p>Current Balance</p>
-        <h2 style="margin:0; color:#333; margin:-1.5rem 0rem -0.5rem 0rem">{monthly_rate}</h2>
-        <div class="notification" style="background: #F8F9FA; border: 1px solid #DDDDDD; padding: 6px; border-radius: 6px;">
+        <h2 style="margin:0; color:#333; margin:-1.5rem 0rem -1.5rem 0rem">{format_chf(12500)}</h2>
+        <div class="notification" style="background: #F8F9FA; border: 1px solid #DDDDDD;">
             {revenue_text}: <strong style="color:{accent_color};">{format_chf(monthly_unused)}/month</strong><br>
             <small>12-month moving average</small>
         </div>
@@ -96,10 +85,10 @@ st.markdown(f"""
     <div class="account-card">
         <h3>Savings Account</h3>
         <p>Current Balance</p>
-        <h2 style="margin:0; color:#333; margin:-1.5rem 0rem -0.5rem 0rem">{savings_rate}</h2>
-        <div class="notification" style="background: #F8F9FA; border: 1px solid #DDDDDD; padding: 6px; border-radius: 6px;">
-            {saved_text}: <strong style="color:{accent_color};">{format_chf(46000)}</strong><br>
-            <small>All time recommended amount</small>
+        <h2 style="margin:0; color:#333; margin:-1.5rem 0rem -1.5rem 0rem">{format_chf(46000)}</h2>
+        <div class="notification" style="background: #F8F9FA; border: 1px solid #DDDDDD;">
+            {revenue_text}: <strong style="color:{accent_color};">{format_chf(monthly_unused)}/month</strong><br>
+            <small>12-month moving average</small>
         </div>
     </div>
 """, unsafe_allow_html=True)

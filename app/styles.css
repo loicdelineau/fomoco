@@ -1,85 +1,59 @@
 /* =============================================
-   FOMOCO - UBS Style Guide
-   All styling centralized here
+   FOMOCO - UBS Style Guide (updated May 2026)
    ============================================= */
-
-.stApp {
-    background-color: #FFFFFF;
-}
-
+.stApp { background-color: #F7F7F7; }
 .main .block-container {
     padding-top: 1rem;
     max-width: 480px;
     margin: 0 auto;
+    font-family: "Frutiger", "Helvetica Neue", "SF Pro Text", Arial, sans-serif;
 }
 
-/* UBS Header */
+/* Header */
 h1 {
-    color: #2A2A2AFF !important;
-    font-size: 2.2rem;
-    font-weight: 700;
+    color: #1A1A1A !important;
+    font-size: 2.4rem;
+    font-weight: 300;
     text-align: left;
     margin-bottom: 0.4rem;
 }
+.subheader { color: #1A1A1A; font-weight: 600; }
 
-.header-subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 1.8rem;
-    font-size: 1.05rem;
-}
-
-/* Main Lost Revenue Box */
+/* Cards & Boxes */
 .merged-box {
-    background: #F8F9FA;
-    border-radius: 16px;
-    padding: 1.5rem 1.3rem;
-    margin-bottom: 1.6rem;
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 1.2rem 0.5rem 0.5rem 1.3rem;
+    margin-bottom: 1rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border: 1px solid #EEEEEE;
+    border: 1px solid #E5E5E5;
     text-align: left;
 }
-
-/* Account Cards */
 .account-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    padding: 0rem 1.5rem 1rem 1rem;
-    margin-bottom: 1rem;
-}
-
-/* Notification */
-.notification {
-    background: #FFF0F0;
-    border-left: 5px solid #E20613;
-    padding: 1rem;
+    background: #FFFFFF;
     border-radius: 8px;
-    margin-top: 1rem;
-    font-weight: 600;
-    color: #333333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #E5E5E5;
 }
 
 /* Buttons */
 .stButton > button {
-    background-color: #E20613;
+    background-color: #E60000;
     color: white;
     font-weight: 600;
-    border-radius: 50px;
+    border-radius: 8px;
     padding: 0.9rem;
     font-size: 1.05rem;
     width: 100%;
 }
+.stButton > button:hover { background-color: #B00000; }
 
-.stButton > button:hover {
-    background-color: #B0000F;
-}
+/* Toggle & Sliders */
+.stToggle { color: #008A3D; }
 
-/* Sliders */
-.stSlider > div > div > div {
-    font-size: 1.1rem !important;
-}
+/* Small text */
+.small-text { font-size: 0.93rem; color: #666666; }
 
-/* Small text helpers */
-.small-text { font-size: 0.93rem; color: #777; }
-.status-text { font-weight: 600; margin-top: 1rem; }
+

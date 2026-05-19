@@ -1,28 +1,70 @@
 import streamlit as st
-from calculations import risk_band
+from calculations import risk_band, future_value_annuity, format_chf
 from visualizations import create_growth_chart
 
-st.set_page_config(page_title="Growth Analysis • UBS", layout="centered")
+st.set_page_config(page_title="Growth Analysis • Fomoco", page_icon="📈", layout="centered")
 
-st.markdown("<h1 style='text-align:center; color:#E20613;'>Growth Analysis</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;'>See your future if you start investing today</p>", unsafe_allow_html=True)
+# Load styles
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Sliders on analysis page
-monthly_invest = st.slider("Monthly investment (CHF)", 200, 2000, 1000, step=50)
-initial_invest = st.slider("Initial investment (CHF)", 0, 100000, 7300, step=1000)
-years_to_retirement = st.slider("Years to retirement", 10, 40, 35, step=1)
 
-basket_option = st.selectbox("Investment basket", ["Balanced (60/40)", "Aggressive (stocks)", "Conservative (bonds)"])
-rate = {"Conservative (bonds)": 5.0, "Balanced (60/40)": 8.0, "Aggressive (stocks)": 12.0}[basket_option]
+# Fixed parameters
+monthly = 3000
+years = 35
+annual_rate = 5.0
+volatility = 4.0
 
-# Chart
-years_list = list(range(1, years_to_retirement + 1))
-vol = 9.0 if rate == 8.0 else 18.0 if rate == 12.0 else 4.0
+years_list = list(range(1, years + 1))
+lower, expected, upper = risk_band(monthly, years, annual_rate, volatility)
 
-lower, expected, upper = risk_band(monthly_invest, years_to_retirement, rate, vol, initial_invest)
+fig = create_growth_chart(years_list, lower, expected, upper, monthly, annual_rate)
+st.plotly_chart(fig, use_container_width=True)
 
-fig = create_growth_chart(years_list, lower, expected, upper, monthly_invest, basket_option, rate, initial_invest)
-st.plotly_chart(fig, width="stretch")
+# Summary box
+final_value = expected[-1]
+bank_final = future_value_annuity(monthly, years, 0.25)[-1]
 
-if st.button("← Back to Overview"):
+st.markdown(f"""
+<div class="merged-box" style="background:#EAF6EE; border:2px solid #008A3D;">
+    <p style="color:#008A3D; font-weight:600; margin:0 0 0.5rem 0;">
+        If you invest CHF 3’000 monthly in the Conservative profile
+    </p>
+    <h2 style="color:#008A3D; margin:0; font-size:2.1rem;">
+        {format_chf(final_value)}
+    </h2>
+    <p style="color:#666666; margin:0.8rem 0 0 0;">
+        vs <span style="text-decoration: line-through; color:#E60000;">{format_chf(bank_final)}</span> in a savings account at 0.25%
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+st.info("""
+**Green curve**: Expected growth at 5% (conservative bonds)  
+**Red dashed curve**: Same money left in bank account  
+**Shaded area**: Realistic risk range for this profile
+""")
+
+# ==================== BUTTONS SECTION ====================
+# Red primary button
+if st.button("🚀 Start investing with Fomoco", 
+             type="primary", 
+             use_container_width=True,
+             key="start_investing_growth"):
+    st.success("Excellent choice! Let's get you started.")
     st.switch_page("app.py")
+
+# Grey back button using custom CSS class
+st.markdown("""
+    <style>
+    .grey-back-btn button {
+        width: 100% !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+if st.button("← Back to Home", 
+             key="back_to_home",
+             use_container_width=True):
+    st.switch_page("app.py")
+
